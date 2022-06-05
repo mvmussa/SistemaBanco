@@ -1,0 +1,6 @@
+agregar en 
+file >> project estructura en dos lugares 
+
+librerias 
+y modulos 
+la libreria que anda es  mysql-connector-java-8.0.28
