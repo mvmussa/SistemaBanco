@@ -5,12 +5,11 @@ import services.BancoService;
 import services.ClienteService;
 import services.CuentaService;
 import services.SucursalService;
-
 import java.math.BigInteger;
 import java.util.*;
 
 
-/**
+/** OPciones del sistema Bancario
  * 1) Agregar Cliente<br>
  * 2) Agregar cuenta a Cliente<br>
  * 3) Listar Clientes por sucursal<br>
@@ -29,7 +28,7 @@ public class SistemaBanco {
 
 
         inicializarBanco();
-        int op = 0;
+        int op;
         System.out.println("***************************************");
         System.out.println("* Operaciones bancarias               *");
         System.out.println("***************************************");
@@ -80,13 +79,6 @@ public class SistemaBanco {
                 listarClientesSucursales("");
                 break;
         }
-
-        /*
-         *   Agregar Cliente versión sin base de datos
-        Cliente clienteAlta = new Cliente( "29994613", "Mussa Victoria", "2215792534","victoria.mussagmail.com", "45", null, new Date());
-        servicioBanco.agregarClienteASuc(1,clienteAlta);
-        System.out.println("cliente agregado: "+servicioBanco.getMiBanco().getSucursales().get(0).getListaClientes().get(0).getNombreApellido());
-        servicioBanco.listarClientes();*/
     }
 
     /**
@@ -94,15 +86,6 @@ public class SistemaBanco {
      **/
 
     private static Cliente pedirDatosCliente() {
-
-        /* PRUEBAS */
-        // String nombreCompleto = "Victoria Mussa";
-        // BigInteger cuil = new BigInteger("23299946134");
-        //String nombreCompleto = "Sergio Yedros";
-        //BigInteger cuil = new BigInteger("2829229973");
-        //String cbu = "000192";
-        //Double saldo = 0.0;
-        //String tipoCuenta = "CA";
 
         String nombreCompleto = leerCadena("Nombre Completo");
         String dni = leerCadena("DNI (sin puntos)");
@@ -119,20 +102,30 @@ public class SistemaBanco {
         //TODO le permito crear CA y CC o una sola
 
         List<Cuenta> cuentas = new ArrayList<>();
-        String tipoCuenta = leerCadena("tipo cuenta CC|CA  (Cuenta Corriente o Caja Ahorro) ");
-        if (tipoCuenta == "CA") {
-            //Cuenta cajaDeAhorro = new CajaDeAhorro(0, saldo, "0000193", "P");
-            Cuenta cajaDeAhorro = new CajaDeAhorro(0, saldo, cbu, "P");
-            cuentas.add(cajaDeAhorro);
+        boolean crearOtraCuenta= true;
 
-        } else {
-            //Cuenta cuentaCorriente = new CuentaCorriente(0, saldo, "0000194");
-            Cuenta cuentaCorriente = new CuentaCorriente(0, saldo, cbu);
-            cuentas.add(cuentaCorriente);
-        }
+        /* utilice un do while por que como mínimo se hace una cuenta */
+        do{
+            String tipoCuenta = leerCadena("tipo cuenta CC|CA  (Cuenta Corriente o Caja Ahorro) ");
+            if (tipoCuenta.equals("CA")) {
+                //Cuenta cajaDeAhorro = new CajaDeAhorro(0, saldo, "0000193", "P");
+                Cuenta cajaDeAhorro = new CajaDeAhorro(0, saldo, cbu, "P");
+                cuentas.add(cajaDeAhorro);
+
+            } else {
+                //Cuenta cuentaCorriente = new CuentaCorriente(0, saldo, "0000194");
+                Cuenta cuentaCorriente = new CuentaCorriente(0, saldo, cbu);
+                cuentas.add(cuentaCorriente);
+            }
+            String respuesta = leerCadena("Desea crear una nueva cuenta S/N");
+            if(respuesta.equals("N")) {
+                crearOtraCuenta= false;
+            }
+        }while(crearOtraCuenta);
+
         Date date = new Date();
-        Cliente cliente = new Cliente(dni, nombreCompleto, telefono, email, domicilio, cuentas, date, cuil);
-        return cliente;
+        return  new Cliente(dni, nombreCompleto, telefono, email, domicilio, cuentas, date, cuil);
+
     }
 
     private static void altaCliente() {
@@ -293,7 +286,7 @@ public class SistemaBanco {
             String cbu = leerCadena("CBU");
             String tipoCuenta = leerCadena("Tipo Cuenta a crear CC | CA");
             CuentaService servicioCuenta = new CuentaService();
-            if (tipoCuenta == "CC") {
+            if (tipoCuenta.equals("CC") ) {
                 Cuenta cuentaCorriente = new CuentaCorriente(0, 0.0, cbu);
                 servicioCuenta.addCuenta(id, cuentaCorriente);
                 System.out.println("se agrego correctamente la cuenta Corriente");
@@ -348,19 +341,19 @@ public class SistemaBanco {
         //se usa para nombreCompleto , cbu ...
         //label es lo que necesito que ingrese
         Scanner input = new Scanner(System.in);
-        boolean repetir = false;
+        boolean repetir ;
         String strLeido = "";
         do {
             repetir = false;
             try {
                 System.out.println("Ingresar texto para " + label);
                 strLeido = input.nextLine();
-                if (strLeido == "") {
+                if (strLeido.equals("")) {
                     System.out.println("No se permiten ingresar blancos");
                     repetir = true;
                 }
             } catch (Exception e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println("Error: " + e.getMessage());
                 repetir = true;
             }
         } while (repetir);
@@ -371,7 +364,7 @@ public class SistemaBanco {
     public static int leerNumero(String label) {
 
         Scanner input = new Scanner(System.in);
-        boolean repetir = false;
+        boolean repetir;
         int num = 0;
         do {
             repetir = false;
@@ -383,11 +376,11 @@ public class SistemaBanco {
                 }
             } catch (InputMismatchException e) {
                 //captura el error si no es un numero ej:letra
-                System.out.println("Valor numérico no válido " + e.toString());
+                System.out.println("Valor numérico no válido " + e);
                 input.nextLine();
                 repetir = true;
             } catch (Exception e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println("Error: " + e.getMessage());
                 repetir = true;
             }
         } while (repetir);
@@ -398,8 +391,8 @@ public class SistemaBanco {
     public static Double leerSaldo(String label) {
         //se usa para dinero
         Scanner input = new Scanner(System.in);
-        boolean repetir = false;
-        Double num = 0.0;
+        boolean repetir;
+        double num = 0.0;
         do {
             repetir = false;
             try {
@@ -410,11 +403,11 @@ public class SistemaBanco {
                 }
             } catch (InputMismatchException e) {
                 //captura el error si no es un numero ej:letra
-                System.out.println("Valor numérico no válido " + e.toString());
+                System.out.println("Valor numérico no válido " + e.getMessage());
                 input.nextDouble();
                 repetir = true;
             } catch (Exception e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println("Error: " + e.getMessage());
                 repetir = true;
             }
         } while (repetir);
@@ -425,7 +418,7 @@ public class SistemaBanco {
     public static BigInteger leerNumeroGrande(String label) {
 
         Scanner input = new Scanner(System.in);
-        boolean repetir = false;
+        boolean repetir ;
         BigInteger num = new BigInteger("0");
         do {
             repetir = false;
@@ -434,11 +427,11 @@ public class SistemaBanco {
                 num = input.nextBigInteger();
             } catch (InputMismatchException e) {
                 //captura el error si no es un numero ej:letra
-                System.out.println("Valor numérico no válido " + e.toString());
+                System.out.println("Valor numérico no válido " + e.getMessage());
                 input.nextBigInteger();
                 repetir = true;
             } catch (Exception e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println("Error: " + e.getMessage());
                 repetir = true;
             }
         } while (repetir);
@@ -449,7 +442,7 @@ public class SistemaBanco {
     public static int leerOpcion() {
 
         Scanner input = new Scanner(System.in);
-        boolean repetir = false;
+        boolean repetir;
         int num = 0;
         do {
             repetir = false;
@@ -461,11 +454,11 @@ public class SistemaBanco {
                 }
             } catch (InputMismatchException e) {
                 //captura el error si no es un numero ej:letra
-                System.out.println("Valor no válido para opción" + e.toString());
+                System.out.println("Valor no válido para opción" + e.getMessage());
                 input.nextLine();
                 repetir = true;
             } catch (Exception e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println("Error: " + e.getMessage());
                 repetir = true;
             }
         } while (repetir);
