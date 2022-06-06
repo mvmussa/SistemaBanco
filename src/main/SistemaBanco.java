@@ -50,7 +50,6 @@ public class SistemaBanco {
                 break;
             case 2:
                 agregarCuentaCliente();
-                //todo agregar cuenta a Sucursal
                 break;
             case 3:
                 listarClientesSucursales("");
@@ -313,9 +312,12 @@ public class SistemaBanco {
         }
     }
 
+    /***
+     * Inicialice el banco con dos sucursales en la bd si es que no existen dos sucursales
+     *
+     */
     private static void inicializarBanco() {
 
-        /* Inicialice el banco con dos sucursales en la bd */
 
        /* todo este código quedo sin uso
           todo REFACTORIZAR function inicializar
@@ -336,10 +338,14 @@ public class SistemaBanco {
          * */
     }
 
+    /**
+     *  se usa para ingresar datos como nombreCompleto , cbu , o cualquier dato de tipo String,
+     *  label pide la información a ingresar por el usuario
+     *  @param label -título del campo a ingresar
+     *  @return String
+     */
     public static String leerCadena(String label) {
 
-        //se usa para nombreCompleto , cbu ...
-        //label es lo que necesito que ingrese
         Scanner input = new Scanner(System.in);
         boolean repetir ;
         String strLeido = "";
