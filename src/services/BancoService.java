@@ -34,22 +34,15 @@ public class BancoService implements IBancoService {
     }
 
 
-    @Override
-    public void registrarSucursal(Sucursal sucursal) {
-
-        //todo registrar sucursal que impacte en la bd
-        Banco banco = getMiBanco();
-        List<Sucursal> sucursales = new ArrayList<>();
-        sucursales.add(sucursal);
-        banco.setSucursales(sucursales);
-
-    }
-
+    /**
+     *  borra la sucursal de la tabla sucursales
+     * @param nroSucursal valor numérido
+     * @return boolean
+     * @throws Exception bd
+     */
     @Override
     public Boolean eliminarSucursal(Integer nroSucursal) throws Exception{
 
-        //borra la sucursal de la tabla sucursales
-        //todo eliminar sucursal que impacte en la bd
         SucursalDAO sucursalDao = SucursalDAO.getInstance();
         Boolean sucursalBorrada = sucursalDao.borroSucursal(nroSucursal);
         return sucursalBorrada;
@@ -58,48 +51,49 @@ public class BancoService implements IBancoService {
     @Override
     public void agregarClienteASuc(int i, Cliente clienteAlta) {
 
-        //todo impactar en la base de datos
         Banco banco = getMiBanco();
         List<Sucursal> sucursales = banco.getSucursales();
         sucursales.stream().forEach((Sucursal s) -> {
             if (s.getNumSucursal() == i) s.getListaClientes().add(clienteAlta);
         });
 
-        /*Sucursal sucFind = sucursales.stream().filter(sucursal -> sucursal.getNumSucursal() == i).findFirst()
-                .orElse(null);
-        me devuelve 1 o mas objetos
-        */
-        /* Customer james = customers.stream()
-                .filter(customer -> "James".equals(customer.getName()))
-                .findAny()
-                .orElse(null);*/
     }
 
     @Override
     public void listarClientes() {
 
-        //todo listar clientes
         Banco banco = getMiBanco();
         List<Sucursal> sucursales = banco.getSucursales();
         sucursales.stream().forEach((s) -> System.out.println("La suc: " + s.getNombreSucursal() + " Tiene :" + s.listarClientes()));
 
     }
 
+    /**
+     * selecciona la suc activo diferente al numero de suc a borrar
+     * @param nroSucursal num de suc
+     * @return Integer
+     * @throws Exception bd
+     */
     @Override
     public Integer sucActiva(Integer nroSucursal) throws Exception {
 
-        //selecciona la suc activo diferente al numero de suc a borrar
         Integer suc = 0;
         SucursalDAO sucursalDao = SucursalDAO.getInstance();
         Integer sucursalAux = sucursalDao.getSucursalRemplazo(nroSucursal);
         return sucursalAux;
     }
 
+    /**
+     * recorre cada cuenta y elimina la relación con la sucursal a borrar
+     * para luego poder borrar la sucursal
+     * y asignar la nueva sucursal a la cuenta
+     *
+     * @param cuentas lista cuentas
+     * @param nroSucursal valor numérico
+     * @throws Exception bd
+     */
     @Override
     public void borroSucursalCuenta(List<Cuenta> cuentas, Integer nroSucursal) throws Exception {
-        //recorre cada cuenta y elimina la relación con la sucursal a borrar
-        // para luego poder borrar la sucursal
-        // y asignar la nueva sucursal a la cuenta
         SucursalDAO sucursalDao = SucursalDAO.getInstance();
         for (Cuenta itCuenta : cuentas) {
             Boolean ok= sucursalDao.borrarSucursalCuenta(itCuenta,nroSucursal);
@@ -109,6 +103,12 @@ public class BancoService implements IBancoService {
         }
     }
 
+    /**
+     * Agrego cuentas a una sucursal
+     * @param cuentas lista de cuentas
+     * @param nroSucursal numero de suc
+     * @throws Exception bd
+     */
     @Override
     public void agregoSucursalCuenta(List<Cuenta> cuentas, Integer nroSucursal) throws Exception {
 
@@ -121,5 +121,36 @@ public class BancoService implements IBancoService {
         }
     }
 
+    /**
+     * Verifico que al iniciar el sistema existan como mínimo 2 sucursales
+     * @throws Exception bd
+     */
+    @Override
+    public void verificarSucursal() throws Exception {
+
+        SucursalService servicioCucursal = new SucursalService();
+        int cantidadSucursales= servicioCucursal.getCantidadSucursal();
+        if(cantidadSucursales < 2 ){
+            do{
+                servicioCucursal.crearSucursal(cantidadSucursales++);
+            }while(cantidadSucursales < 2);
+
+        }
+    }
+
+    /**
+     * Agega una cuenta a una sucursal cuando se crea
+     * @param numSucursal valor numerico
+     * @param cuenta cuenta
+     *
+     */
+    @Override
+    public void agregarCuentaASuc(int numSucursal, Cuenta cuenta) {
+
+        SucursalService servicioCucursal = new SucursalService();
+        servicioCucursal.asociarCuenta(numSucursal, cuenta.getNumCuenta());
+
+
+    }
 
 }

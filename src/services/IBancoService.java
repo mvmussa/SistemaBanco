@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface IBancoService {
 
-    void registrarSucursal(Sucursal sucursal);
-
      Boolean eliminarSucursal(Integer nrosucursal)throws Exception;
 
     void agregarClienteASuc(int i, Cliente clienteAlta);
@@ -21,4 +19,9 @@ public interface IBancoService {
     void borroSucursalCuenta(List<Cuenta> cuentas, Integer nroSucursal)throws Exception;
 
     void agregoSucursalCuenta(List<Cuenta> cuentas, Integer nroSucursal)throws Exception;
+
+    void verificarSucursal()throws Exception;
+
+    void agregarCuentaASuc(int numSucursal, Cuenta cuenta);
+
 }

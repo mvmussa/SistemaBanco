@@ -13,4 +13,10 @@ public interface ISucursalDAO {
     Boolean borrarSucursalCuenta(Cuenta cuenta,Integer nroSucursal)throws Exception;
 
     Boolean asignoSucursalCuenta(Cuenta itCuenta, Integer nroSucursal)throws Exception;
+
+    int getCantidadSucursal()throws Exception;
+
+    void crearSucursal(int numero)throws Exception;
+
+    void asociarCuentaSucursal(int numSucursal, Integer numCuenta);
 }

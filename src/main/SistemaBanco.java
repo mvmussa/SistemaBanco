@@ -84,21 +84,26 @@ public class SistemaBanco {
      * Métodos menú principal
      **/
 
+
+    /**
+     * Pide que ingrese por teclado los datos del nuevo cliente a dar de alta
+     * con una cuenta como mínimo
+     *
+     * @return Cliente
+     */
     private static Cliente pedirDatosCliente() {
 
+        // datos personales
         String nombreCompleto = leerCadena("Nombre Completo");
         String dni = leerCadena("DNI (sin puntos)");
         BigInteger cuil = leerNumeroGrande("CUIL");
+        String telefono = leerCadena("Teléfono");
+        String email = leerCadena("E-mail");
+        String domicilio = leerCadena("Domicilio");
 
-        /*datos cuenta*/
+        //datos cuenta
         String cbu = leerCadena("CBU (solo números)");
         Double saldo = 0.0;
-
-        String telefono = "155792534";
-        String email = "victoria.mussa@gmail.com";
-        String domicilio = "calle 45 n 1129";
-
-        //TODO le permito crear CA y CC o una sola
 
         List<Cuenta> cuentas = new ArrayList<>();
         boolean crearOtraCuenta= true;
@@ -107,12 +112,10 @@ public class SistemaBanco {
         do{
             String tipoCuenta = leerCadena("tipo cuenta CC|CA  (Cuenta Corriente o Caja Ahorro) ");
             if (tipoCuenta.equals("CA")) {
-                //Cuenta cajaDeAhorro = new CajaDeAhorro(0, saldo, "0000193", "P");
                 Cuenta cajaDeAhorro = new CajaDeAhorro(0, saldo, cbu, "P");
                 cuentas.add(cajaDeAhorro);
 
             } else {
-                //Cuenta cuentaCorriente = new CuentaCorriente(0, saldo, "0000194");
                 Cuenta cuentaCorriente = new CuentaCorriente(0, saldo, cbu);
                 cuentas.add(cuentaCorriente);
             }
@@ -121,17 +124,18 @@ public class SistemaBanco {
                 crearOtraCuenta= false;
             }
         }while(crearOtraCuenta);
-
         Date date = new Date();
         return  new Cliente(dni, nombreCompleto, telefono, email, domicilio, cuentas, date, cuil);
 
     }
 
+    /**
+     * Da de alta un nuevo Cliente
+     **/
+
     private static void altaCliente() {
 
-        //Da de alta 1 cliente con 1 o más cuentas (lista de cuentas)
-        //pido datos cliente  y cuenta a crear
-        Cliente cliente = pedirDatosCliente();
+        Cliente cliente =pedirDatosCliente();
         try {
             ClienteService servicioCliente = new ClienteService();
             servicioCliente.addCliente(cliente);
@@ -141,16 +145,13 @@ public class SistemaBanco {
         }
     }
 
-
-    private static void borrarSucursal() {
+    /**
+     * Borrar una sucursal: verifica que exista otra sucuarsal auxiliar para
+     * trasladar todos los clientes con sus cuentas, luegopodría borrar la sucursal
+     */
+     private static void borrarSucursal() {
 
         Integer nroSucursal = 1;
-        //todo borrar sucursal
-
-        //busco sucursal objeto con el numero de la sucursal
-        //si hay mas de 2 sucursales o igual a 2 puedo borrar
-
-        //select con sucursal_cuentas y actualizo toda lista esa
         try {
             SucursalService servicioCucursal = new SucursalService();
             Integer nroSuc= leerNumero("Sucursar a borrar");
@@ -163,17 +164,11 @@ public class SistemaBanco {
 
     }
 
+    /**
+     * Realiza la tranferencia del monto de una cuenta origen a una cuenta destino si es que el monto es igual
+     * al saldo a tranferir
+    **/
     private static void realizarTranferencia() {
-
-        /*una cuenta tranfiere un monto a otra cuenta
-        nro cuenta origen
-        saldo a tranferir
-        nro cuenta destino */
-
-        //PRUEBA
-        //Double saldo = 5.0;
-        //String cbu_origen = "192";
-        //String cbu_destino = "193";
 
         System.out.println("Para poder tranferir dinero le pediremos los siguientas datos:");
         String cbu_destino = leerCadena("CBU ORIGEN");
@@ -186,15 +181,16 @@ public class SistemaBanco {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
-
     }
+
+    /**
+     * Depositar Dinero en una cuenta usando el cbu de la cuenta de origen y destino
+     */
 
     private static void depositarDinero() {
 
         try {
             System.out.println("Para depositar dinero le pediremos algunos datos:");
-            //BigInteger cuil = new BigInteger("23299946134");
             BigInteger cuil = leerNumeroGrande("Cuil Destino ");
             ClienteService servicioCliente = new ClienteService();
             Integer id = servicioCliente.getIdCliente(cuil);
@@ -203,9 +199,7 @@ public class SistemaBanco {
             servicioCuenta.getCuentasCliente(id);
 
             System.out.println("Debe elegir el Nro de cuenta a la cual depositar");
-            //Integer nroCuenta = 30;
             Integer nroCuenta = leerNumero("Nro Cuenta Destino");
-            //Double saldo = 100.0;
             Double saldo = leerSaldo("Saldo a Depositar");
             servicioCuenta.depositarSaldo(nroCuenta, saldo);
             System.out.println("Se realizó el deposito con Exito");
@@ -214,11 +208,13 @@ public class SistemaBanco {
         }
     }
 
+    /**
+     * Consulta el saldo de una cuenta específica
+     *
+     */
     private static void consultarSaldo() {
 
-        //Muestro para un ID cliente sus cuentas  (formato listado )
         try {
-            //BigInteger cuil = new BigInteger("23299946134");
             System.out.println("Para poder consultar el saldo de una cuenta  le pediremos los siguientes datos del Cliente:");
             BigInteger cuil = leerNumeroGrande("Cuil");
 
@@ -228,8 +224,6 @@ public class SistemaBanco {
             CuentaService servicioCuenta = new CuentaService();
             servicioCuenta.getCuentasCliente(id);
 
-            //TODO consultar saldo
-            //Integer nroCuenta = 30;
             System.out.println("Ingrese el Nro de cuenta a la cual consultar");
             Integer nroCuenta = leerNumero("Nro Cuenta");
             servicioCuenta.consultarSaldo(nroCuenta);
@@ -239,13 +233,13 @@ public class SistemaBanco {
         }
     }
 
+    /**
+     * Muestra por pantalla las cuentas asociadas a un cliente
+     */
     private static void listarCuentasCliente() {
-
-        //Muestro para un ID cliente sus cuentas  (formato listado )
 
         try {
             System.out.println("Para poder extraer dinero le pediremos los siguientes datos:");
-            //BigInteger cuil = new BigInteger("23299946134");
             BigInteger cuil = leerNumeroGrande("Cuil");
             ClienteService servicioCliente = new ClienteService();
             Integer id = servicioCliente.getIdCliente(cuil);
@@ -253,8 +247,6 @@ public class SistemaBanco {
             CuentaService servicioCuenta = new CuentaService();
             servicioCuenta.getCuentasCliente(id);
 
-            //Integer nroCuenta = 25;
-            //Double saldo = 10.0;
             System.out.println("Ingrese un número de cuenta del listado, a la cual quiere extraer dinero");
             Integer nroCuenta = leerNumero("Nro Cuenta");
             System.out.println("Ahora le vamos a pedir el valor en pesos (sin signo pesos y sin puntos)");
@@ -266,14 +258,12 @@ public class SistemaBanco {
         }
     }
 
+    /**
+     * Agrega cuenta a un cliente existente
+     */
     private static void agregarCuentaCliente() {
 
-        //se agrega una nueva cuenta a un cliente existente
-        //se pido el cuil 23299946111 y traigo el id cliente
-        //le pregunto que tipo de cuenta quiere y la creo
-
         try {
-            //BigInteger cuil = new BigInteger("23299946134");
             System.out.println("Para agregar una cuenta al CLiente necesitamos Cuil");
             BigInteger cuil = leerNumeroGrande("Cuil");
 
@@ -281,7 +271,6 @@ public class SistemaBanco {
             Integer id = servicioCliente.getIdCliente(cuil);
 
             //todo cbu armarlo segun la sucursal y demas digitos
-            //String cbu = "0000191";
             String cbu = leerCadena("CBU");
             String tipoCuenta = leerCadena("Tipo Cuenta a crear CC | CA");
             CuentaService servicioCuenta = new CuentaService();
@@ -312,30 +301,20 @@ public class SistemaBanco {
         }
     }
 
-    /***
-     * Inicialice el banco con dos sucursales en la bd si es que no existen dos sucursales
-     *
-     */
+    /**
+     * Inicialice el banco con 2 sucursales en la bd si es que no existen dos sucursales
+     * @preturn void
+     * */
     private static void inicializarBanco() {
 
+        try {
+            BancoService servicioBanco =new BancoService();
+            servicioBanco.verificarSucursal();
 
-       /* todo este código quedo sin uso
-          todo REFACTORIZAR function inicializar
-          Creamos el banco y le creamos 2 sucursal como mínimo
-          Si tuvieramos la Base de datos se realizaria la carga de datos en la base y no debería invocar cada
-          vez que se ejecuta el SistemaBanco * */
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
-        BancoService servicioBanco = new BancoService(new Banco(1, "Banco Provincia"));
-        Sucursal sucursalInicial = new Sucursal(1, "Suc 1");
-
-        //creo una sucursal como mínimo
-        servicioBanco.registrarSucursal(sucursalInicial);
-        System.out.println("se creo el banco --->" + servicioBanco.getMiBanco().getNombreBanco());
-        System.out.println("se agrego la sucursal  --->" + servicioBanco.getMiBanco().getSucursales().get(0).getNombreSucursal());
-
-        /*
-         *   FIN  inicialización
-         * */
     }
 
     /**
@@ -367,6 +346,12 @@ public class SistemaBanco {
         return strLeido;
     }
 
+    /**
+     *  se usa para ingresar del tipo número ej: nro_sucursal
+     *  label pide la información a ingresar por el usuario
+     *  @param label -título del campo a ingresar
+     *  @return int
+     */
     public static int leerNumero(String label) {
 
         Scanner input = new Scanner(System.in);
@@ -381,7 +366,6 @@ public class SistemaBanco {
                     throw new ArithmeticException("No es un valor permitido < 0");
                 }
             } catch (InputMismatchException e) {
-                //captura el error si no es un numero ej:letra
                 System.out.println("Valor numérico no válido " + e);
                 input.nextLine();
                 repetir = true;
@@ -394,6 +378,12 @@ public class SistemaBanco {
         return num;
     }
 
+    /**
+     *  se usa para ingresar  valores del tipo moneda
+     *  label pide la información a ingresar por el usuario
+     *  @param label -título del campo a ingresar
+     *  @return Double
+     */
     public static Double leerSaldo(String label) {
         //se usa para dinero
         Scanner input = new Scanner(System.in);
@@ -408,7 +398,6 @@ public class SistemaBanco {
                     throw new ArithmeticException("No es un valor permitido < 0 para cargar dinero ");
                 }
             } catch (InputMismatchException e) {
-                //captura el error si no es un numero ej:letra
                 System.out.println("Valor numérico no válido " + e.getMessage());
                 input.nextDouble();
                 repetir = true;
@@ -421,6 +410,12 @@ public class SistemaBanco {
         return num;
     }
 
+    /**
+     *  se usa para ingresar  valores del tipo CUIL
+     *  label pide la información a ingresar por el usuario
+     *  @param label -título del campo a ingresar
+     *  @return BigInteger
+     */
     public static BigInteger leerNumeroGrande(String label) {
 
         Scanner input = new Scanner(System.in);
@@ -432,7 +427,6 @@ public class SistemaBanco {
                 System.out.println("Ingresar valores para " + label);
                 num = input.nextBigInteger();
             } catch (InputMismatchException e) {
-                //captura el error si no es un numero ej:letra
                 System.out.println("Valor numérico no válido " + e.getMessage());
                 input.nextBigInteger();
                 repetir = true;
@@ -445,6 +439,11 @@ public class SistemaBanco {
         return num;
     }
 
+    /**
+     *  se usa para ingresar  valores entre 0 y 9
+     *  label pide la información a ingresar por el usuario
+     *  @return int
+     */
     public static int leerOpcion() {
 
         Scanner input = new Scanner(System.in);
@@ -471,6 +470,5 @@ public class SistemaBanco {
 
         return num;
     }
-
 
 }
